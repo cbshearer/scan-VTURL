@@ -35,11 +35,11 @@ Function submit-VTURL($VTURL)
                 ## submission was successful, now we need to hang around and get the result using $vtresult.scan_id
                 Write-Host -f Cyan "Result    : " -NoNewline; Write-Host $vtresult.verbose_msg
                 Write-Host -f Cyan "Permalink : " -NoNewline; Write-Host $vtresult.permalink
-                Write-Host -f Cyan "Scan date : " -NoNewline; Write-Host $vtresult.scan_date
+                Write-Host -f Cyan "Scan ID   : " -NoNewline; Write-Host $vtresult.scan_id
                 Write-Host -f Cyan "Resource  : " -NoNewline; Write-Host $vtresult.resource
 
                 <#
-                    now i ave to write a query to search against the $vtresult.scan_id portion
+                    now i ave to write a query to search against the $vtresult.scan_id value
                 #>
             }
 
