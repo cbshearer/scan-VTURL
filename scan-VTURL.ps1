@@ -14,7 +14,6 @@ Function submit-VTURL($VTURL)
     #$vtresult = $null
     $VTbody = @{url = $VTURL; apikey = $VTApiKey}
     $VTscan = Invoke-RestMethod -Method POST -Uri 'https://www.virustotal.com/vtapi/v2/url/scan' -Body $VTbody
-    $VTscan
     return $VTscan
 }
 
@@ -30,8 +29,23 @@ Function submit-VTURL($VTURL)
             
             #$VTresult = $null
             $VTresult = submit-VTURL($URL)
-            
 
+            if ($vtresult.response_code -eq 1)
+            {
+                ## submission was successful, now we need to hang around and get the result using $vtresult.scan_id
+                Write-Host -f Cyan "Result    : " -NoNewline; Write-Host $vtresult.verbose_msg
+                Write-Host -f Cyan "Permalink : " -NoNewline; Write-Host $vtresult.permalink
+                Write-Host -f Cyan "Scan date : " -NoNewline; Write-Host $vtresult.scan_date
+                Write-Host -f Cyan "Resource  : " -NoNewline; Write-Host $vtresult.resource
+
+                <#
+                    now i ave to write a query to search against the $vtresult.scan_id portion
+                #>
+            }
+
+
+
+            <#
             ## Color positive results
                 if ($VTresult.positives -ge 1) {
                     
@@ -54,6 +68,6 @@ Function submit-VTURL($VTURL)
                 Write-Host -f Cyan "Total Scans : " -NoNewline; Write-Host $VTresult.total
                 Write-Host -f Cyan "Permalink   : " -NoNewline; Write-Host $VTresult.permalink
                 Write-Host -f Cyan "Ratio       : " -NoNewline; Write-Host $vtRatio -f $fore
-                
+                #>
                 Start-Sleep -seconds $sleepTime
         }
