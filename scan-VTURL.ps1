@@ -25,63 +25,73 @@ Function search-VTURL($currentResource)
     return $VTReport
 }
 
-Function start-apisleep
+Function Start-SleepyTime
 {
-    Write-host "`nSleeping to avoid API limits!"
-    Start-Sleep -seconds $sleepTime
+    Write-host -f Yellow "Sleeping to avoid API limits. $SleepyTime seconds"
+    Start-Sleep -seconds $SleepyTime
 }
 
 ## Samples
-    $samples = @("http://internetyellowpages.buzz/Chase/chase/verification/5CACBBN043094ADCD1CM/card.php","http://bonuspacex.com/btc/")
+    $samples = @("microsoft.com","apple.com")
 
 ## Set sleep value to respect API limits (4/min) - https://developers.virustotal.com/v3.0/reference#public-vs-premium-api
-    if ($samples.count -ge 2) {$sleepTime = 15}
-    else {$sleepTime = 1 }
+    if ($samples.count -ge 2) {$SleepyTime = 15}
+    else {$SleepyTime = 1 }
 
 ## Loop through URLs
     foreach ($URL in $samples)
         {
             ## Run the function to submit the url for scanning
+                Write-Host -f Green "Scanning URL: " -nonewline; write-host $URL
                 $VTresult = submit-VTURL($URL)
             
-            ## Run our function to sleep for the right amount of time
-                start-apisleep
+            ## Run  function to sleep for the right amount of time
+                Start-SleepyTime
             
             if ($vtresult.response_code -eq 1)
-            {
-                ## submission was successful, now we need to hang around and get the result using $vtresult.scan_id
-                    Write-Host "===URL SUBMITTED==="
-                    Write-Host -f Cyan "Result    : " -NoNewline; Write-Host $vtresult.verbose_msg
-                    Write-Host -f Cyan "Permalink : " -NoNewline; Write-Host $vtresult.permalink
-                    Write-Host -f Cyan "Scan ID   : " -NoNewline; Write-Host $vtresult.scan_id
-                    Write-Host -f Cyan "Resource  : " -NoNewline; Write-Host $vtresult.resource
-                
-                ## Run our function to sleep for the right amount of time
-                    start-apisleep
-                    
-                ## Set the current resource we are looking at to a variable to cleanly pass into the function
-                    $currentResource = $vtresult.resource
-                    $VTReport = search-VTURL($currentResource)
+                {
+                    ## Submission was successful, now we need to hang around and get the result using $vtresult.scan_id
+                        Write-Host "===URL SUBMITTED==="
+                        Write-Host -f Cyan "Result    : " -NoNewline; Write-Host $vtresult.verbose_msg
+                        Write-Host -f Cyan "Permalink : " -NoNewline; Write-Host $vtresult.permalink
+                        Write-Host -f Cyan "Scan ID   : " -NoNewline; Write-Host $vtresult.scan_id
+                        Write-Host -f Cyan "Resource  : " -NoNewline; Write-Host $vtresult.resource
+                        Write-Host "===================`n"
 
-                ## Color positive results
-                    if ($VTreport.positives -ge 1) {
-                        $fore = "Magenta"
-                        $vtRatio = (($VTReport.positives) / ($VTReport.total)) * 100
-                        $vtRatio = [math]::Round($vtRatio,2)
-                        }
+                    ## Run our function to sleep for the right amount of time
+                        Start-SleepyTime
+                        
+                    ## Set the current resource we are looking at to a variable to cleanly pass into the function
+                        $currentResource = $vtresult.resource
+                        $VTReport = search-VTURL($currentResource)
 
-                    else {
-                        $fore = (get-host).ui.rawui.ForegroundColor
-                        $vtRatio = 0
-                        }
+                    ## Color positive results
+                        if ($VTreport.positives -ge 1) 
+                            {
+                                $fore = "Magenta"
+                                $vtRatio = (($VTReport.positives) / ($VTReport.total)) * 100
+                                $vtRatio = [math]::Round($vtRatio,2)
+                            }
 
-                ## Display results 
-                    Write-Host "====URL REPORT====="
-                    Write-Host -f Cyan "Resource    : " -NoNewline; Write-Host $VTReport.resource
-                    Write-Host -f Cyan "Scan date   : " -NoNewline; Write-Host $VTReport.scan_date
-                    Write-Host -f Cyan "Positives   : " -NoNewline; Write-Host $VTReport.positives -f $fore
-                    Write-Host -f Cyan "Total Scans : " -NoNewline; Write-Host $VTReport.total
-                    Write-Host -f Cyan "Permalink   : " -NoNewline; Write-Host $VTReport.permalink
-                    Write-Host -f Cyan "Ratio       : " -NoNewline; Write-Host $vtRatio -f $fore
-            }
+                        else 
+                            {
+                                $fore = (get-host).ui.rawui.ForegroundColor
+                                $vtRatio = 0
+                            }
+
+                    ## Display results 
+                        Write-Host "====URL REPORT====="
+                        Write-Host -f Cyan "Resource    : " -NoNewline; Write-Host $VTReport.resource
+                        Write-Host -f Cyan "Scan date   : " -NoNewline; Write-Host $VTReport.scan_date
+                        Write-Host -f Cyan "Positives   : " -NoNewline; Write-Host $VTReport.positives -f $fore
+                        Write-Host -f Cyan "Total Scans : " -NoNewline; Write-Host $VTReport.total
+                        Write-Host -f Cyan "Permalink   : " -NoNewline; Write-Host $VTReport.permalink
+                        Write-Host -f Cyan "Ratio       : " -NoNewline; Write-Host $vtRatio -f $fore
+                        Write-Host "===================`n"
+                }
+            else 
+                {
+                    Write-Host "Something went wrong:"
+                    Write-Host $VTresult.verbose_msg
+                }
         }
