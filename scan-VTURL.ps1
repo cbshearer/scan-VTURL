@@ -9,7 +9,7 @@
 ## Set TLS 1.2
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-## Setup some variables
+## Zero out counter
     $n = 0
 
 Function submit-VTURL($VTURL)
